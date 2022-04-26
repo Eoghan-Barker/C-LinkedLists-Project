@@ -209,6 +209,7 @@ void displayNode(nodeT* head, int location) {
 	nodeT* temp = head;
 
 	for (int i = 0; i < location; i++) {
+		if (temp->NEXT == NULL) break;
 		temp = temp->NEXT;
 	}
 
@@ -286,6 +287,7 @@ void statistics(nodeT* head) {
 					if (temp->avgTurnover == 1) stats[0]++;
 					if (temp->avgTurnover == 2) stats[1]++;
 					if (temp->avgTurnover == 3) stats[2]++;
+					
 					count++;
 				}
 
@@ -295,7 +297,7 @@ void statistics(nodeT* head) {
 			break;
 		case 2:
 			printf("Select Number of Employees 1. Less than 10, 2. Less than 100, 3. Greater than 100: \n");
-			scanf("%d", selection);
+			scanf("%d", &selection);
 
 			while (temp != NULL) {
 
@@ -314,11 +316,11 @@ void statistics(nodeT* head) {
 			printf("Invalid input(must be 1 or 2)");
 			break;
 		}
-	} while (type != 1 || type != 2);
+	} while (type != 1 && type != 2);
 
-	printf("Less than 1 Millon: %f", ((stats[0]/count)*100.0));
-	printf("Less than 10 Millon: %f", ((stats[1]/count)*100.0));
-	printf("Greater than 10 Millon: %f", ((stats[2]/count)*100.0));
+	printf("Less than 1 Millon: %.2f%%\n", ((stats[0]/(float)count)*100.0));
+	printf("Less than 10 Millon: %.2f%%\n", ((stats[1]/ (float)count)*100.0));
+	printf("Greater than 10 Millon: %.2f%%\n\n", ((stats[2]/ (float)count)*100.0));
 }
 
 void outputToFile(nodeT* head){
@@ -347,8 +349,10 @@ void clientsInOrder(nodeT* head){
 	int location = 0;
 
 	for (int i = 3; i > 0; i--) {
-		while (temp != head) {
-			if (temp->avgTurnover == i) displayNode(head, location);
+		temp = head;
+		while (temp != NULL) {
+			location = 0;
+			if (temp->avgTurnover == i) displayNode(temp, location);
 
 			location++;
 			temp = temp->NEXT;
