@@ -21,9 +21,9 @@ typedef struct node {
 	struct node* NEXT;
 }nodeT;
 
-nodeT* createNode();
-void addClientStart(nodeT** head);
-void addClientEnd(nodeT* head);
+nodeT* createNode(int reg);
+void addClientStart(nodeT** head, int reg);
+void addClientEnd(nodeT* head, int reg);
 void displayList(nodeT* head);
 int searchList(nodeT* head, int reg);
 void displayNode(nodeT* head, int location);
@@ -55,11 +55,21 @@ void main() {
 		switch (choice)
 		{
 		case 1:
+			printf("Enter registration number(must be unique):\n");
+			scanf("%d", &regSearch);
+
+			location = searchList(head, regSearch);
+
+			if (location > -1) {
+				printf("Registration number already exists\n");
+				break;
+			}
+
 			if (head == NULL) {
-				addClientStart(&head);
+				addClientStart(&head, regSearch);
 			}
 			else {
-				addClientEnd(head);
+				addClientEnd(head, regSearch);
 			}
 			break;
 		case 2:
@@ -123,13 +133,14 @@ void main() {
 	}
 }
 
-nodeT* createNode() {
+nodeT* createNode(int reg) {
 	nodeT* newNode;
 
 
 	newNode = (nodeT*)malloc(sizeof(nodeT));
-	printf("Enter company registration number, name, country, and year founded: \n");
-	scanf("%d %s %s %d", &newNode->regNum, newNode->name, newNode->country, &newNode->founded);
+	newNode->regNum = reg;
+	printf("Enter company name, country, and year founded: \n");
+	scanf("%s %s %d",  newNode->name, newNode->country, &newNode->founded);
 	printf("Enter company email and contact name:\n");
 	scanf("%s %s", newNode->email, newNode->contact);
 	printf("Enter the company's last order, number of employees, and average annual order\n");
@@ -146,20 +157,19 @@ nodeT* createNode() {
 	return newNode;
 }
 
-void addClientStart(nodeT** head) {
+void addClientStart(nodeT** head, int reg) {
 	nodeT* newNode = NULL;
 
-	newNode = createNode();
-
+	newNode = createNode(reg);
 	newNode->NEXT = *head;
 	*head = newNode;
 }
 
-void addClientEnd(nodeT* head){
+void addClientEnd(nodeT* head, int reg){
 	nodeT* temp = head;
 	nodeT* newNode;
 
-	newNode = createNode();
+	newNode = createNode(reg);
 
 
 	while (temp->NEXT != NULL)
@@ -223,8 +233,8 @@ void updateClient(nodeT* head, int location){
 		temp = temp->NEXT;
 	}
 
-	printf("Enter company registration number, name, country, and year founded: \n");
-	scanf("%d %s %s %d", &temp->regNum, temp->name, temp->country, &temp->founded);
+	printf("Enter company name, country, and year founded: \n");
+	scanf("%s %s %d", temp->name, temp->country, &temp->founded);
 	printf("Enter company email and contact name:\n");
 	scanf("%s %s", temp->email, temp->contact);
 	printf("Enter the company's last order, number of employees, and average annual order\n");
