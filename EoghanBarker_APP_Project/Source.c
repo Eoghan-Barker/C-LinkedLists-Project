@@ -24,6 +24,7 @@ typedef struct node {
 nodeT* createNode(int reg);
 void addClientStart(nodeT** head, int reg);
 void addClientEnd(nodeT* head, int reg);
+char* validEmail(char* email);
 void displayList(nodeT* head);
 int searchList(nodeT* head, int reg);
 void displayNode(nodeT* head, int location);
@@ -135,14 +136,18 @@ void main() {
 
 nodeT* createNode(int reg) {
 	nodeT* newNode;
+	char newEmail[30];
 
 
 	newNode = (nodeT*)malloc(sizeof(nodeT));
 	newNode->regNum = reg;
 	printf("Enter company name, country, and year founded: \n");
 	scanf("%s %s %d",  newNode->name, newNode->country, &newNode->founded);
-	printf("Enter company email and contact name:\n");
-	scanf("%s %s", newNode->email, newNode->contact);
+	printf("Enter company email:\n");
+	scanf("%s", newEmail);
+	strcpy(newNode->email, validEmail(newEmail));
+	printf("Enter company contact name:\n");
+	scanf("%s", newNode->contact);
 	printf("Enter the company's last order, number of employees, and average annual order\n");
 	scanf("%d %d %f", &newNode->lastOrder, &newNode->numEmployees, &newNode->avgOrder);
 	printf("Is the client VAT registered?(0= yes, 1 = no)\n");
@@ -155,6 +160,34 @@ nodeT* createNode(int reg) {
 	scanf("%d", &newNode->areaOfSales);
 
 	return newNode;
+}
+
+char* validEmail(char* email) {
+	char* at;
+	char* com;
+	char newEmail[30];
+	int isValid = 0;
+
+	at = strstr(email, "@");
+	com = strstr(email, ".com");
+
+	if (at != NULL && com != NULL) {
+		isValid = 1;
+		strcpy(newEmail, email);
+	}
+
+	while (isValid == 0) {
+		printf("Not a vaild email(must contain @ and .com)\n");
+		printf("Enter new email\n");
+		scanf("%s", newEmail);
+
+		at = strstr(newEmail, "@");
+		com = strstr(newEmail, ".com");
+
+		if (at != NULL && com != NULL) isValid = 1;
+	}
+
+	return newEmail;
 }
 
 void addClientStart(nodeT** head, int reg) {
@@ -184,11 +217,15 @@ void addClientEnd(nodeT* head, int reg){
 void displayList(nodeT* head){
 	nodeT* temp = head;
 	int counter = 1;
+	char turnoverLabel[3][30] = { "Less than e1 Million", "Less than e10 Million", "Over e10 Million" };
+	char staffLabel[3][30] = { "Less than 10", "Less than 100", "Over 100" };
+	char salesLabel[3][30] = { "ICT", "Medical Devices", "Other Area" };
 
 	while (temp != NULL)
 	{
 		printf("\nClient %d\n", counter);
-		printf("%d %s %s %d %s %s %d %d %d %d %d %d\n", temp->regNum, temp->name, temp->country, temp->founded, temp->email, temp->contact, temp->lastOrder, temp->numEmployees, temp->isVat, temp->avgTurnover, temp->staffStat, temp->areaOfSales);
+		printf("%d %s %s %d %s %s %d %d %d\n", temp->regNum, temp->name, temp->country, temp->founded, temp->email, temp->contact, temp->lastOrder, temp->numEmployees, temp->isVat);
+		printf("%s \n%s \n%s \n", turnoverLabel[temp->avgTurnover - 1], staffLabel[temp->staffStat - 1], salesLabel[temp->areaOfSales - 1]);
 
 
 		temp = temp->NEXT;
@@ -217,17 +254,22 @@ int searchList(nodeT* head, int reg){
 
 void displayNode(nodeT* head, int location) {
 	nodeT* temp = head;
+	char turnoverLabel[3][30] = { "Less than e1 Million", "Less than e10 Million", "Over e10 Million" };
+	char staffLabel[3][30] = { "Less than 10", "Less than 100", "Over 100" };
+	char salesLabel[3][30] = { "ICT", "Medical Devices", "Other Area" };
 
 	for (int i = 0; i < location; i++) {
 		if (temp->NEXT == NULL) break;
 		temp = temp->NEXT;
 	}
 
-	printf("%d %s %s %d %s %s %d %d %d %d %d %d\n", temp->regNum, temp->name, temp->country, temp->founded, temp->email, temp->contact, temp->lastOrder, temp->numEmployees, temp->isVat, temp->avgTurnover, temp->staffStat, temp->areaOfSales);
+	printf("%d %s %s %d %s %s %d %d %d\n", temp->regNum, temp->name, temp->country, temp->founded, temp->email, temp->contact, temp->lastOrder, temp->numEmployees, temp->isVat);
+	printf("%s \n%s \n%s \n", turnoverLabel[temp->avgTurnover - 1], staffLabel[temp->staffStat - 1], salesLabel[temp->areaOfSales - 1]);
 }
 
 void updateClient(nodeT* head, int location){
 	nodeT* temp = head;
+	char newEmail[30];
 
 	for (int i = 0; i < location; i++) {
 		temp = temp->NEXT;
@@ -235,8 +277,11 @@ void updateClient(nodeT* head, int location){
 
 	printf("Enter company name, country, and year founded: \n");
 	scanf("%s %s %d", temp->name, temp->country, &temp->founded);
-	printf("Enter company email and contact name:\n");
-	scanf("%s %s", temp->email, temp->contact);
+	printf("Enter company email:\n");
+	scanf("%s", newEmail);
+	strcpy(temp->email, validEmail(newEmail));
+	printf("Enter company contact name:\n");
+	scanf("%s", temp->contact);
 	printf("Enter the company's last order, number of employees, and average annual order\n");
 	scanf("%d %d %f", &temp->lastOrder, &temp->numEmployees, &temp->avgOrder);
 	printf("Is the client VAT registered?(0= yes, 1 = no)\n");
