@@ -1,7 +1,9 @@
+//G00397072 - Eoghan Barker
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
 
+// client nodes for database linked list
 typedef struct node {
 
 	int regNum;
@@ -36,10 +38,10 @@ void clientsInOrder(nodeT* head);
 int userLogin();
 int loadDatabase(nodeT** head);
 int openFile(int mode);
-void closeFile();
 
 FILE* fptr = NULL;
 
+// Calls user login and has a menu for user to work with the database
 void main() {
 	nodeT* head = NULL;
 	int choice = 0;
@@ -48,8 +50,10 @@ void main() {
 	int login = 0;
 	int loadSuccess = 0;
 
+	// if login successful login = 1
 	login = userLogin();
 
+	// continue to ask user for login details until they enter valid username and password
 	while (login != 1) {
 		printf("Incorrect username or password, try again\n");
 		login = userLogin();
@@ -57,7 +61,7 @@ void main() {
 
 	printf("Welcome to the XYX Medical Supplier client record\n");
 
-
+	// print menu until user enters -1
 	while (choice != -1)
 	{
 		printf("Enter 1 to add a client\n");
@@ -74,10 +78,15 @@ void main() {
 
 		switch (choice)
 		{
+		// add client
 		case 1:
+			// reg number must be unique
+			// ask for regnumber here and search for it in the list 
+			// to verify uniqueness before creating a new node
 			printf("Enter registration number(must be unique):\n");
 			scanf("%d", &regSearch);
 
+			// returns -1 if ID not in list else returns position it appears in list
 			location = searchList(head, regSearch);
 
 			if (location > -1) {
@@ -85,6 +94,7 @@ void main() {
 				break;
 			}
 
+			// check if list is empty to see if node should be added to start or end of list
 			if (head == NULL) {
 				addClientStart(&head, regSearch);
 			}
@@ -92,15 +102,31 @@ void main() {
 				addClientEnd(head, regSearch);
 			}
 			break;
+		// print entire list if list is not empty
 		case 2:
-			displayList(head);
+			if (head == NULL) {
+				printf("List is empty\n");
+			}
+			else {
+				displayList(head);
+			}
 			break;
+		// print specified node
 		case 3:
+
+			// Check if list is empty
+			if (head == NULL) {
+				printf("List is empty\n");
+				break;
+			}
+
 			printf("Enter registration number of client you wish to display details: \n");
 			scanf("%d", &regSearch);
 
+			// Search if reg number exists, returns -1 if not
 			location = searchList(head, regSearch);
 
+			// Ensure node exists
 			if (location > -1) {
 				displayNode(head, location);
 			}
@@ -109,10 +135,18 @@ void main() {
 			}
 			
 			break;
+		// update node
 		case 4:
+			// Check if list is empty
+			if (head == NULL) {
+				printf("List is empty\n");
+				break;
+			}
+
 			printf("Enter registration number of client you wish to update: \n");
 			scanf("%d", &regSearch);
 
+			// Search if list
 			location = searchList(head, regSearch);
 
 			if (location > -1) {
@@ -122,7 +156,14 @@ void main() {
 				printf("Registration number does not exist\n");
 			}
 			break;
+		// delete node
 		case 5:
+			// Check if list is empty
+			if (head == NULL) {
+				printf("List is empty\n");
+				break;
+			}
+
 			printf("Enter registration number of client you wish to delete: \n");
 			scanf("%d", &regSearch);
 
@@ -135,15 +176,37 @@ void main() {
 				printf("Registration number does not exist\n");
 			}
 			break;
+		// print stats
 		case 6:
+			// Check if list is empty
+			if (head == NULL) {
+				printf("List is empty\n");
+				break;
+			}
+
 			statistics(head);
 			break;
+		// output list data to file
 		case 7:
+			// Check if list is empty
+			if (head == NULL) {
+				printf("List is empty\n");
+				break;
+			}
+
 			outputToFile(head);
 			break;
+		// print list in order of average turnover
 		case 8:
+			// Check if list is empty
+			if (head == NULL) {
+				printf("List is empty\n");
+				break;
+			}
+
 			clientsInOrder(head);
 			break;
+		// read data from file into list
 		case 9:
 			loadSuccess = loadDatabase(&head);
 
@@ -164,17 +227,24 @@ void main() {
 	}
 }
 
+// Creates a new node and asks user for all the node's data
+// args - registration number as int
+// returns - node pointer
 nodeT* createNode(int reg) {
 	nodeT* newNode;
 	char newEmail[30];
 
+	// allocate correct memory to node
 	newNode = (nodeT*)malloc(sizeof(nodeT));
+	// copy user entered reg to node data(uniqness checked in main)
 	newNode->regNum = reg;
 	printf("Enter company name, country, and year founded: \n");
 	scanf("%s %s %d",  newNode->name, newNode->country, &newNode->founded);
 	printf("Enter company email:\n");
+	// call validEmail which returns a string and copy it into node data
 	scanf("%s", newEmail);
 	strcpy(newNode->email, validEmail(newEmail));
+
 	printf("Enter company contact name:\n");
 	scanf("%s", newNode->contact);
 	printf("Enter the company's last order, number of employees, and average annual order\n");
@@ -191,25 +261,33 @@ nodeT* createNode(int reg) {
 	return newNode;
 }
 
+// Ensures user enters email containing "@" and ".com"
+// args - email as string
+// returns - email as string
 char* validEmail(char* email) {
 	char* at;
 	char* com;
 	char newEmail[30];
 	int isValid = 0;
 
+	// find position of '@' and '.com' sunstrings in email(NULL if don't exist)
 	at = strstr(email, "@");
 	com = strstr(email, ".com");
 
+	// is valid if both substrings exist
+	// copy email into newEmail for return
 	if (at != NULL && com != NULL) {
 		isValid = 1;
 		strcpy(newEmail, email);
 	}
 
+	// ask user to enter new email until valid
 	while (isValid == 0) {
 		printf("Not a vaild email(must contain @ and .com)\n");
 		printf("Enter new email\n");
 		scanf("%s", newEmail);
 
+		// check new input for substrings
 		at = strstr(newEmail, "@");
 		com = strstr(newEmail, ".com");
 
@@ -219,6 +297,8 @@ char* validEmail(char* email) {
 	return newEmail;
 }
 
+// call createNode(), link head pointer to new node, and point newNode.next to null
+// args - head of linked list as node double pointer, registration number as int
 void addClientStart(nodeT** head, int reg) {
 	nodeT* newNode = NULL;
 
@@ -227,6 +307,9 @@ void addClientStart(nodeT** head, int reg) {
 	*head = newNode;
 }
 
+// call createNode(), traverse to end of list, 
+// make last node point to new node and newnode point to null
+// args - head of linked list as node pointer
 void addClientEnd(nodeT* head, int reg){
 	nodeT* temp = head;
 	nodeT* newNode;
@@ -243,13 +326,17 @@ void addClientEnd(nodeT* head, int reg){
 	temp->NEXT = newNode;
 }
 
+// Print all data for each node in list
+// args - head of linked list as node pointer
 void displayList(nodeT* head){
 	nodeT* temp = head;
 	int counter = 1;
+	// Labels for converting user inputs as int into relevent string data
 	char turnoverLabel[3][30] = { "Less than e1 Million", "Less than e10 Million", "Over e10 Million" };
 	char staffLabel[3][30] = { "Less than 10", "Less than 100", "Over 100" };
 	char salesLabel[3][30] = { "ICT", "Medical Devices", "Other Area" };
 
+	// print all nodes until end of list is reached
 	while (temp != NULL)
 	{
 		printf("\nClient %d\n", counter);
@@ -262,13 +349,18 @@ void displayList(nodeT* head){
 	}
 }
 
+// Search for an node's reg num in the list
+// Args - head of list as node pointer, reg number as int
+// Returns - Position of node in list if found, else -1
 int searchList(nodeT* head, int reg){
 	nodeT* temp = head;
 	int found = -1;
 	int count = 0;
 
+	// Traverse list and do checks until end of list
 	while (temp != NULL)
 	{
+		// If reg num is found, save the position for returning
 		if (reg == temp->regNum)
 		{
 			found = count;
@@ -281,21 +373,28 @@ int searchList(nodeT* head, int reg){
 	return found;
 }
 
+// Displays data of one node at user specified position in list
+// Args - head pointer, Postion of node as int
 void displayNode(nodeT* head, int location) {
 	nodeT* temp = head;
+	// Labels for printing relevant string data from int stored in the struct
 	char turnoverLabel[3][30] = { "Less than e1 Million", "Less than e10 Million", "Over e10 Million" };
 	char staffLabel[3][30] = { "Less than 10", "Less than 100", "Over 100" };
 	char salesLabel[3][30] = { "ICT", "Medical Devices", "Other Area" };
 
+	// Traverse list until specified locaton is reached, break if NULL(other input validation done in main)
 	for (int i = 0; i < location; i++) {
 		if (temp->NEXT == NULL) break;
 		temp = temp->NEXT;
 	}
 
 	printf("%d %s %s %d %s %s %d %d %d\n", temp->regNum, temp->name, temp->country, temp->founded, temp->email, temp->contact, temp->lastOrder, temp->numEmployees, temp->isVat);
+	// Print labels instead of integers
 	printf("%s \n%s \n%s \n", turnoverLabel[temp->avgTurnover - 1], staffLabel[temp->staffStat - 1], salesLabel[temp->areaOfSales - 1]);
 }
 
+// Allow user to update data for specified node(except for reg num)
+// Args - head pointer, location of node to update as int
 void updateClient(nodeT* head, int location){
 	nodeT* temp = head;
 	char newEmail[30];
@@ -324,11 +423,14 @@ void updateClient(nodeT* head, int location){
 
 }
 
+// Delete a node from the list
+// Args - head double pointer, location of node to delete as int
 void deleteClient(nodeT** head, int location){
 	nodeT* temp = *head;
 	nodeT* prev = NULL;
 	int i;
 
+	// Traverse to specified location(validation done in main), store last and 2nd last nodes in list
 	for (i = 0; i < location; i++)
 	{
 		prev = temp;
@@ -346,9 +448,13 @@ void deleteClient(nodeT** head, int location){
 		prev->NEXT = temp->NEXT;
 	}
 
+	// free memory of deleted node
 	free(temp);
 }
 
+// Prints statistics generated based on user inputs
+// Stats are percentage of clients, in specified field/with number of employees, in the 3 different average turnover groups
+// Args - head pointer
 void statistics(nodeT* head) {
 	nodeT* temp = head;
 	int type = 0;
@@ -365,13 +471,17 @@ void statistics(nodeT* head) {
 			printf("Select Area of Sales 1. ICT, 2. Medical Devices, 3. Other: \n");
 			scanf("%d", &selection);
 
+			// Traverse list
 			while (temp != NULL) {
 
+				// check if node is in relevent field
 				if (temp->areaOfSales == selection) {
+					// Count nodes based on avgTurnover
 					if (temp->avgTurnover == 1) stats[0]++;
 					if (temp->avgTurnover == 2) stats[1]++;
 					if (temp->avgTurnover == 3) stats[2]++;
 					
+					//Only counts nodes that are relevent to the statistics
 					count++;
 				}
 
@@ -385,10 +495,14 @@ void statistics(nodeT* head) {
 
 			while (temp != NULL) {
 
+				// check if node is in relevent field
 				if (temp->staffStat == selection) {
+					// Count nodes based on avgTurnover
 					if (temp->avgTurnover == 1) stats[0]++;
 					if (temp->avgTurnover == 2) stats[1]++;
 					if (temp->avgTurnover == 3) stats[2]++;
+
+					//Only counts nodes that are relevent to the statistics
 					count++;
 				}
 
@@ -400,21 +514,26 @@ void statistics(nodeT* head) {
 			printf("Invalid input(must be 1 or 2)");
 			break;
 		}
-	} while (type != 1 && type != 2);
+	} while (type != 1 && type != 2); // loop back if invalid input
 
+	// Print percentages
 	printf("Less than 1 Millon: %.2f%%\n", ((stats[0]/(float)count)*100.0));
 	printf("Less than 10 Millon: %.2f%%\n", ((stats[1]/ (float)count)*100.0));
 	printf("Greater than 10 Millon: %.2f%%\n\n", ((stats[2]/ (float)count)*100.0));
 }
 
+// Open file and write data for each node to it
+// Args - head pointer
 void outputToFile(nodeT* head){
 	nodeT* temp = head;
 	FILE* fp;
 
 	fp = fopen("clients.txt", "w");
 
+	//Traverse list
 	while (temp != NULL)
 	{
+		// check if file opened correctly
 		if (fp != NULL)
 		{
 			fprintf(fp, "%d %s %s %d %s %s %d %d %d %d %d %d\n", temp->regNum, temp->name, temp->country, temp->founded, temp->email, temp->contact, temp->lastOrder, temp->numEmployees, temp->isVat, temp->avgTurnover, temp->staffStat, temp->areaOfSales);
@@ -422,20 +541,27 @@ void outputToFile(nodeT* head){
 		temp = temp->NEXT;
 	}
 
+	// check if file opened correctly before trying to close
 	if (fp != NULL)
 	{
 		fclose(fp);
 	}
 }
 
+// Prints list in order of average turnover
 void clientsInOrder(nodeT* head){
 	nodeT* temp = head;
 	int location = 0;
 
+	// Start by printing nodes highest turnover bracket(3) then middle(2) then lowest(1)
 	for (int i = 3; i > 0; i--) {
+		// reset temp for list traversel 
 		temp = head;
+		// Traveres list
 		while (temp != NULL) {
+			// reset location
 			location = 0;
+			// if node is in correct bracket then print
 			if (temp->avgTurnover == i) displayNode(temp, location);
 
 			location++;
@@ -444,6 +570,9 @@ void clientsInOrder(nodeT* head){
 	}
 }
 
+// Ask user for login credentials and validate it from login.txt
+// Masks password entry with '*' for each character
+// Returns - 1 if credentials are vaild, else 0
 int userLogin() {
 	char newUsername[30];
 	char newPassword[30];
@@ -455,21 +584,29 @@ int userLogin() {
 
 	printf("Enter username: \n");
 	scanf("%s", newUsername);
+	// Mask user password entry with '*'
 	printf("Enter password: \n");
-	for (i = 0; i < 100; i++)
+	// Use loop so that masking can stop when user hits enter
+	for (i = 0; i < 30; i++)
 	{
+		// Holds user entered character so it can be replaced with * on screen
 		ch = getch();
 		// break on return character
 		if (ch == 13)
 			break;
+		// save user entered char
 		newPassword[i] = ch;
 		ch = '*';
+		// print *
 		printf("%c ", ch);
 	}
 	// end string
 	newPassword[i] = '\0';
 
+	// Open login.txt, check if successful
+	// 1 arg opens login.txt in 'r' mode
 	if (openFile(1) == 1) {
+		// login.txt contains 3 username/password pairs, loop 3 times to compare each one with user input
 		for (int i = 0; i < 3; i++) {
 			fscanf(fptr, "%s %s\n", validUsername, validPassword);
 
@@ -479,30 +616,50 @@ int userLogin() {
 		}
 	}
 
+	// check if file opened correctly before trying to close
+	if (fptr != NULL)
+	{
+		fclose(fptr);
+	}
+
 	return success;
 }
 
+// Load data from output.txt, store in linked list
+// Args - head double pointer
+// Returns - 0 if failed, else 1
 int loadDatabase(nodeT** head) {
 	nodeT* newNode = NULL;
 	nodeT* temp = NULL;
 
 	if (openFile(2) != 1) return 0;
 
+	// Traverse file until end
 	while (!feof(fptr)) {
+		//Create new node and copy data into it
 		newNode = (nodeT*)malloc(sizeof(nodeT));
 		fscanf(fptr, "%d %s %s %d %s %s %d %d %d %d %d %d\n", &newNode->regNum, newNode->name, newNode->country, &newNode->founded, newNode->email, newNode->contact, &newNode->lastOrder, &newNode->numEmployees, &newNode->isVat, &newNode->avgTurnover, &newNode->staffStat, &newNode->areaOfSales);
 
+		// check if file opened correctly before trying to close
+		if (fptr != NULL)
+		{
+			fclose(fptr);
+		}
+		// check if adding too start or end of list
 		if (*head == NULL) {
+			// Head point to new node, newnode point to null
 			newNode->NEXT = *head;
 			*head = newNode;
 		}
 		else
 		{
+			// traverse to end of list
 			temp = *head;
 			while (temp->NEXT != NULL) {
 				temp = temp->NEXT;
 			}
 
+			// last node points to newnode, new node points to null
 			newNode->NEXT = NULL;
 			temp->NEXT = newNode;
 		}
@@ -510,8 +667,10 @@ int loadDatabase(nodeT** head) {
 	return 1;
 }
 
-//if mode is 0 = w mode
-//mode 1 = r mode
+// if mode 0 = w mode, clients.txt
+// if mode 1 = r mode, login.txt
+// if mode 0 = r mode, clients.txt
+// returns 1 if file opened successfully
 int openFile(int mode) {
 	int result;
 
@@ -535,8 +694,4 @@ int openFile(int mode) {
 		result = 1;
 	}
 	return result;
-}
-
-void closeFile() {
-	fclose(fptr);
 }
