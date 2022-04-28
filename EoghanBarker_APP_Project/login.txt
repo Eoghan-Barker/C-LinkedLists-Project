@@ -1,0 +1,3 @@
+admin admin
+eoghan password
+martin john

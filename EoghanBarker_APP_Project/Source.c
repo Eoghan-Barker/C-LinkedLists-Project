@@ -33,12 +33,30 @@ void deleteClient(nodeT** head, int location);
 void statistics(nodeT* head);
 void outputToFile(nodeT* head);
 void clientsInOrder(nodeT* head);
+int userLogin();
+int loadDatabase(nodeT** head);
+int openFile(int mode);
+void closeFile();
+
+FILE* fptr = NULL;
 
 void main() {
 	nodeT* head = NULL;
 	int choice = 0;
 	int regSearch;
 	int location;
+	int login = 0;
+	int loadSuccess = 0;
+
+	login = userLogin();
+
+	while (login != 1) {
+		printf("Incorrect username or password, try again\n");
+		login = userLogin();
+	}
+
+	printf("Welcome to the XYX Medical Supplier client record\n");
+
 
 	while (choice != -1)
 	{
@@ -50,6 +68,7 @@ void main() {
 		printf("Enter 6 generate statistics\n");
 		printf("Enter 7 to output all client details to a report file\n");
 		printf("Enter 8 to list all clients in order of their last average turnover\n");
+		printf("Enter 9 to load an existing database in from a local file\n");
 		printf("Enter -1 to exit\n");
 		scanf("%d", &choice);
 
@@ -125,6 +144,17 @@ void main() {
 		case 8:
 			clientsInOrder(head);
 			break;
+		case 9:
+			loadSuccess = loadDatabase(&head);
+
+			if (loadSuccess != 1) {
+				printf("Error loading file\n");
+			}
+			else
+			{
+				printf("Database loaded successfully\n");
+			}
+			break;
 		case -1:
 			break;
 		default:
@@ -137,7 +167,6 @@ void main() {
 nodeT* createNode(int reg) {
 	nodeT* newNode;
 	char newEmail[30];
-
 
 	newNode = (nodeT*)malloc(sizeof(nodeT));
 	newNode->regNum = reg;
@@ -413,4 +442,101 @@ void clientsInOrder(nodeT* head){
 			temp = temp->NEXT;
 		}
 	}
+}
+
+int userLogin() {
+	char newUsername[30];
+	char newPassword[30];
+	char validUsername[30];
+	char validPassword[30];
+	char ch;
+	int success = 0;
+	int i;
+
+	printf("Enter username: \n");
+	scanf("%s", newUsername);
+	printf("Enter password: \n");
+	for (i = 0; i < 100; i++)
+	{
+		ch = getch();
+		// break on return character
+		if (ch == 13)
+			break;
+		newPassword[i] = ch;
+		ch = '*';
+		printf("%c ", ch);
+	}
+	// end string
+	newPassword[i] = '\0';
+
+	if (openFile(1) == 1) {
+		for (int i = 0; i < 3; i++) {
+			fscanf(fptr, "%s %s\n", validUsername, validPassword);
+
+			if (strcmp(newUsername, validUsername) == 0 && strcmp(newPassword, validPassword) == 0) {
+				success = 1;
+			}
+		}
+	}
+
+	return success;
+}
+
+int loadDatabase(nodeT** head) {
+	nodeT* newNode = NULL;
+	nodeT* temp = NULL;
+
+	if (openFile(2) != 1) return 0;
+
+	while (!feof(fptr)) {
+		newNode = (nodeT*)malloc(sizeof(nodeT));
+		fscanf(fptr, "%d %s %s %d %s %s %d %d %d %d %d %d\n", &newNode->regNum, newNode->name, newNode->country, &newNode->founded, newNode->email, newNode->contact, &newNode->lastOrder, &newNode->numEmployees, &newNode->isVat, &newNode->avgTurnover, &newNode->staffStat, &newNode->areaOfSales);
+
+		if (*head == NULL) {
+			newNode->NEXT = *head;
+			*head = newNode;
+		}
+		else
+		{
+			temp = *head;
+			while (temp->NEXT != NULL) {
+				temp = temp->NEXT;
+			}
+
+			newNode->NEXT = NULL;
+			temp->NEXT = newNode;
+		}
+	}
+	return 1;
+}
+
+//if mode is 0 = w mode
+//mode 1 = r mode
+int openFile(int mode) {
+	int result;
+
+	if (mode == 0) {
+		fptr = fopen("clients.txt", "w");
+	}
+	else if(mode == 1) {
+		fptr = fopen("login.txt", "r");
+	}
+	else {
+		fptr = fopen("clients.txt", "r");
+	}
+
+	if (fptr == NULL)
+	{
+		printf("Error opening file");
+		result = 0;
+	}
+	else
+	{
+		result = 1;
+	}
+	return result;
+}
+
+void closeFile() {
+	fclose(fptr);
 }
