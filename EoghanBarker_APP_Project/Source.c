@@ -249,14 +249,42 @@ nodeT* createNode(int reg) {
 	scanf("%s", newNode->contact);
 	printf("Enter the company's last order, number of employees, and average annual order\n");
 	scanf("%d %d %f", &newNode->lastOrder, &newNode->numEmployees, &newNode->avgOrder);
+
+	// These inputs need Validation
 	printf("Is the client VAT registered?(0= yes, 1 = no)\n");
 	scanf("%d", &newNode->isVat);
+	
+	while (newNode->isVat < 0 || newNode->isVat > 1) {
+		printf("Invalid input\n");
+		printf("Is the client VAT registered?(0= yes, 1 = no)\n");
+		scanf("%d", &newNode->isVat);
+	}
+
 	printf("What are the client's average turnover?(1 = < £1 million, 2 = < £10 million, 3 = > £10 million)\n");
 	scanf("%d", &newNode->avgTurnover);
+
+	while (newNode->avgTurnover < 1 || newNode->avgTurnover > 3) {
+		printf("Invalid input\n");
+		printf("What are the client's average turnover?(1 = < £1 million, 2 = < £10 million, 3 = > £10 million)\n");
+		scanf("%d", &newNode->avgTurnover);
+	}
+
 	printf("How many staff are employed by the company?(1 = < 10, 2 = < 100, 3 = > 100)\n");
 	scanf("%d", &newNode->staffStat);
+
+	while (newNode->staffStat < 1 || newNode->staffStat > 3) {
+		printf("Invalid input\n");
+		printf("How many staff are employed by the company?(1 = < 10, 2 = < 100, 3 = > 100)\n");
+		scanf("%d", &newNode->staffStat);
+	}
 	printf("What area of sales is the company in?(1 = ICT, 2 = Medical Devices, 3 = other)\n");
 	scanf("%d", &newNode->areaOfSales);
+
+	while (newNode->areaOfSales < 1 || newNode->areaOfSales > 3) {
+		printf("Invalid input\n");
+		printf("What area of sales is the company in?(1 = ICT, 2 = Medical Devices, 3 = other)\n");
+		scanf("%d", &newNode->areaOfSales);
+	}
 
 	return newNode;
 }
@@ -412,14 +440,42 @@ void updateClient(nodeT* head, int location){
 	scanf("%s", temp->contact);
 	printf("Enter the company's last order, number of employees, and average annual order\n");
 	scanf("%d %d %f", &temp->lastOrder, &temp->numEmployees, &temp->avgOrder);
+
+	// These inputs need Validation
 	printf("Is the client VAT registered?(0= yes, 1 = no)\n");
 	scanf("%d", &temp->isVat);
+
+	while (temp->isVat < 0 || temp->isVat > 1) {
+		printf("Invalid input\n");
+		printf("Is the client VAT registered?(0= yes, 1 = no)\n");
+		scanf("%d", &temp->isVat);
+	}
+
 	printf("What are the client's average turnover?(1 = < £1 million, 2 = < £10 million, 3 = > £10 million)\n");
 	scanf("%d", &temp->avgTurnover);
+
+	while (temp->avgTurnover < 1 || temp->avgTurnover > 3) {
+		printf("Invalid input\n");
+		printf("What are the client's average turnover?(1 = < £1 million, 2 = < £10 million, 3 = > £10 million)\n");
+		scanf("%d", &temp->avgTurnover);
+	}
+
 	printf("How many staff are employed by the company?(1 = < 10, 2 = < 100, 3 = > 100)\n");
 	scanf("%d", &temp->staffStat);
+
+	while (temp->staffStat < 1 || temp->staffStat > 3) {
+		printf("Invalid input\n");
+		printf("How many staff are employed by the company?(1 = < 10, 2 = < 100, 3 = > 100)\n");
+		scanf("%d", &temp->staffStat);
+	}
 	printf("What area of sales is the company in?(1 = ICT, 2 = Medical Devices, 3 = other)\n");
 	scanf("%d", &temp->areaOfSales);
+
+	while (temp->areaOfSales < 1 || temp->areaOfSales > 3) {
+		printf("Invalid input\n");
+		printf("What area of sales is the company in?(1 = ICT, 2 = Medical Devices, 3 = other)\n");
+		scanf("%d", &temp->areaOfSales);
+	}
 
 }
 
